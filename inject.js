@@ -6,7 +6,7 @@ const imageSelector = ".v-image__image--contain";
 const activeCardClass = "vcard_active";
 
 // let curVideo = { bar: undefined, id: undefined};
-let lastVideo;
+let lastVideo = {};
 
 function log(message, level) {
   verbosity = 5;
@@ -153,23 +153,41 @@ function init(document) {
     }
   );
 
+  const updateLastVideo = () => {
+    const curVideoCard = getCurVideoCard();
+    if (curVideoCard) {
+      lastVideo.bar = curVideoCard.getElementsByClassName(mTrackerBarClass)[0];
+      lastVideo.id = getCurVideoID(curVideoCard);
+      log("lastVideo updated", 5);
+    }
+  };
+
   const playerObserver = new MutationObserver((mutations) => {
     mutations.forEach((mutation) => {
       if (mutation.type === "attributes" && mutation.attributeName === "src") {
         // TODO update last progress bar based on time
-        if (lastVideo) {
+        if (Object.keys(lastVideo).length) {
           // update progess bar for last video
+          if (lastVideo.id === getCurVideoID()) {
+            return;
+          }
+
           chrome.storage.sync.get(lastVideo.id, (res) => {
             const lastVideoData = res[lastVideo.id];
             if (lastVideoData) {
               lastVideo.bar.style.width = getBarWidth(lastVideoData);
+              // lastVideo.bar.style.width = `${100 * Math.random()}%`; //// for testing
+              log(
+                `update lastVideo bar width to ${lastVideo.bar.style.width}`,
+                5
+              );
             }
+            updateLastVideo();
           });
+        } else {
+          // store current video data
+          updateLastVideo();
         }
-        // store current video data
-        const curElement = getCurVideoCard();
-        console.log("src changed, cur element is: ");
-        console.log(curElement);
       }
     });
   });
