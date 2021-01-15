@@ -5,11 +5,11 @@ const videoCardClass = "v-image v-responsive";
 const imageSelector = ".v-image__image--contain";
 const activeCardClass = "vcard_active";
 
-// let curVideo = { bar: undefined, id: undefined};
 let lastVideo = {};
 
+// https://github.com/igrigorik/videospeed/blob/d8333fbc3035ff440ce77278cccd77996af90f0e/inject.js#L39
 function log(message, level) {
-  verbosity = 5;
+  verbosity = 2;
   if (verbosity >= level) {
     if (level === 2) {
       console.log("ERROR:" + message);
@@ -87,10 +87,6 @@ function init(document) {
 
   const player = videoTag[0];
 
-  window.onbeforeunload = () => {
-    log(`unloading, curTime = ${player.currentTime}`, 5);
-  };
-
   const getBarWidth = (video) =>
     video.duration
       ? `${Math.round((video.curTime / video.duration) * 100)}%`
@@ -140,8 +136,25 @@ function init(document) {
       return;
     }
     player._updateInterval = setInterval(() => {
-      // TODO set the play time in storage
-      log(player.currentTime, 5);
+      const curVid = getCurVideoID();
+      chrome.storage.sync.get(curVid, (res) => {
+        if (res[curVid] && res[curVid].curTime !== player.currentTime) {
+          chrome.storage.sync.set(
+            {
+              [curVid]: {
+                curTime: player.currentTime,
+                duration: res[curVid].duration
+              }
+            },
+            () => {
+              log(
+                `set ${curVid} to {curTime: ${player.currentTime}, duration: ${res[curVid].duration}}`,
+                5
+              );
+            }
+          );
+        }
+      });
     }, 1000);
   });
 
@@ -150,6 +163,7 @@ function init(document) {
     ["pause", "emptied", "abort", "ended"],
     () => {
       clearInterval(player._updateInterval);
+      player._updateInterval = undefined;
     }
   );
 
@@ -165,10 +179,10 @@ function init(document) {
   const playerObserver = new MutationObserver((mutations) => {
     mutations.forEach((mutation) => {
       if (mutation.type === "attributes" && mutation.attributeName === "src") {
-        // TODO update last progress bar based on time
+        const curVid = getCurVideoID();
         if (Object.keys(lastVideo).length) {
           // update progess bar for last video
-          if (lastVideo.id === getCurVideoID()) {
+          if (lastVideo.id === curVid) {
             return;
           }
 
@@ -188,6 +202,15 @@ function init(document) {
           // store current video data
           updateLastVideo();
         }
+
+        chrome.storage.sync.get(curVid, (res) => {
+          const lastTime = res[curVid]?.curTime;
+          log(`resume from ${lastTime}`, 5);
+          if (lastTime) {
+            // player.currentTime = res[curVid].duration * Math.random(); // test
+            player.currentTime = lastTime;
+          }
+        });
       }
     });
   });
