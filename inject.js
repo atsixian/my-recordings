@@ -5,9 +5,8 @@ const videoCardClass = "v-image v-responsive";
 const imageSelector = ".v-image__image--contain";
 const activeCardClass = "vcard_active";
 
-let lastVideoCard;
-
-let lastVideo = { bar: undefined, vid: undefined };
+// let curVideo = { bar: undefined, id: undefined};
+let lastVideo;
 
 function log(message, level) {
   verbosity = 5;
@@ -92,11 +91,16 @@ function init(document) {
     log(`unloading, curTime = ${player.currentTime}`, 5);
   };
 
+  const getBarWidth = (video) =>
+    video.duration
+      ? `${Math.round((video.curTime / video.duration) * 100)}%`
+      : 0;
+
   const getCurVideoCard = () => {
     let activeCard = document.getElementsByClassName(activeCardClass);
     if (activeCard.length > 0) {
       // get current video card element
-      return activeCard[0].querySelector(imageSelector);
+      return activeCard[0];
     }
     return undefined;
   };
@@ -106,7 +110,8 @@ function init(document) {
 
     if (curVideoCard) {
       // get current video id
-      return getVideoID(curVideoCard);
+      const curImage = curVideoCard.querySelector(imageSelector);
+      return curImage ? getVideoID(curImage) : undefined;
     }
     return undefined;
   };
@@ -152,6 +157,19 @@ function init(document) {
     mutations.forEach((mutation) => {
       if (mutation.type === "attributes" && mutation.attributeName === "src") {
         // TODO update last progress bar based on time
+        if (lastVideo) {
+          // update progess bar for last video
+          chrome.storage.sync.get(lastVideo.id, (res) => {
+            const lastVideoData = res[lastVideo.id];
+            if (lastVideoData) {
+              lastVideo.bar.style.width = getBarWidth(lastVideoData);
+            }
+          });
+        }
+        // store current video data
+        const curElement = getCurVideoCard();
+        console.log("src changed, cur element is: ");
+        console.log(curElement);
       }
     });
   });
@@ -183,11 +201,7 @@ function init(document) {
                           const bar = document.createElement("div");
                           const curVideo = res[vid];
                           // duratio is never set before for this video
-                          bar.style.width = curVideo.duration
-                            ? `${Math.round(
-                                (curVideo.curTime / curVideo.duration) * 100
-                              )}%`
-                            : 0;
+                          bar.style.width = getBarWidth(curVideo);
                           bar.className = mTrackerBarClass;
 
                           card.appendChild(bar);
