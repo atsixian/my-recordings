@@ -3,10 +3,10 @@
   "short_name": "mcgill-rec-tracker",
   "version": "1.0",
   "description": "Track recordings for McGill students",
-  "permissions": ["storage", "webRequest", "tabs", "*://*.mcgill.ca/*"],
+  "permissions": ["storage", "tabs", "*://*.mcgill.ca/*"],
   "background": {
-    "scripts": ["background.js", "hot-reload.js"],
-    "persistent": true
+    "scripts": ["hot-reload.js"],
+    "persistent": false
   },
   "content_scripts": [
     {

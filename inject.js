@@ -1,18 +1,13 @@
 const mTrackerClass = "m-rec-tracker";
 const mTrackerBarClass = `${mTrackerClass}-bar`;
 const sideBarClass = "layout items_recordings d-flex column";
-const videoCardClass = "v-image v-responsive theme--light";
-const thumbnailClass = "v-image__image v-image__image--contain";
+const videoCardClass = "v-image v-responsive";
+const imageSelector = ".v-image__image--contain";
+const activeCardClass = "vcard_active";
 
-chrome.storage.sync.set({
-  "2021-WINTER/COMP-520-001/20210108_133113_ZOOM_72456": 100,
-});
-chrome.storage.sync.set({
-  "2021-WINTER/COMP-520-001/20210111_133524_ZOOM_79314": 50,
-});
-chrome.storage.sync.set({
-  "2021-WINTER/COMP-520-001/20210113_133410_ZOOM_81119": 10,
-});
+let lastVideoCard;
+
+let lastVideo = { bar: undefined, vid: undefined };
 
 function log(message, level) {
   verbosity = 5;
@@ -57,6 +52,24 @@ function initWhenReady() {
   }
 }
 
+function getVideoID(imgNode) {
+  if (!imgNode || !imgNode.style?.backgroundImage) {
+    log("invalid image node", 2);
+    return undefined;
+  }
+  const pattern = /.*mcgill.ca\/content\/(.*)\/images\/*/;
+  const match = imgNode.style.backgroundImage.match(pattern);
+  if (match && match.length > 1) {
+    return match[1];
+  }
+  return undefined;
+}
+
+// https://stackoverflow.com/questions/8796988/binding-multiple-events-to-a-listener-without-jquery
+function addMultipleEventListener(element, events, handler) {
+  events.forEach((e) => element.addEventListener(e, handler));
+}
+
 function init(document) {
   log("begin init", 5);
   if (!document.body || document.body.classList.contains(mTrackerClass)) {
@@ -68,6 +81,83 @@ function init(document) {
   log("init: query for media", 5);
 
   let videoTag = document.getElementsByTagName("video");
+
+  if (videoTag.length < 0) {
+    return;
+  }
+
+  const player = videoTag[0];
+
+  window.onbeforeunload = () => {
+    log(`unloading, curTime = ${player.currentTime}`, 5);
+  };
+
+  const getCurVideoCard = () => {
+    let activeCard = document.getElementsByClassName(activeCardClass);
+    if (activeCard.length > 0) {
+      // get current video card element
+      return activeCard[0].querySelector(imageSelector);
+    }
+    return undefined;
+  };
+
+  const getCurVideoID = () => {
+    const curVideoCard = getCurVideoCard();
+
+    if (curVideoCard) {
+      // get current video id
+      return getVideoID(curVideoCard);
+    }
+    return undefined;
+  };
+
+  player.addEventListener("loadedmetadata", () => {
+    log(`duration: ${player.duration}`, 5);
+
+    const vid = getCurVideoID();
+    if (vid) {
+      log(`loaded ${vid}`, 5);
+      chrome.storage.sync.get(vid, (res) => {
+        // keep the old curTime
+        const curVideo = res[vid];
+        chrome.storage.sync.set({
+          [vid]: {
+            duration: player.duration,
+            curTime: curVideo.curTime || 0,
+          },
+        });
+      });
+    }
+  });
+
+  player.addEventListener("play", () => {
+    if (player._updateInterval !== undefined) {
+      return;
+    }
+    player._updateInterval = setInterval(() => {
+      // TODO set the play time in storage
+      log(player.currentTime, 5);
+    }, 1000);
+  });
+
+  addMultipleEventListener(
+    player,
+    ["pause", "emptied", "abort", "ended"],
+    () => {
+      clearInterval(player._updateInterval);
+    }
+  );
+
+  const playerObserver = new MutationObserver((mutations) => {
+    mutations.forEach((mutation) => {
+      if (mutation.type === "attributes" && mutation.attributeName === "src") {
+        // TODO update last progress bar based on time
+      }
+    });
+  });
+
+  playerObserver.observe(player, { attributeFilter: ["src"] });
+
   let sideBar = document.getElementsByClassName(sideBarClass);
   if (sideBar.length > 0) {
     sideBar = sideBar[0];
@@ -82,18 +172,22 @@ function init(document) {
                 if (cardMut.type === "childList") {
                   cardMut.addedNodes.forEach((child) => {
                     if (child.classList.contains("v-image__image--contain")) {
-                      const pattern = /.*mcgill.ca\/content\/(.*)\/images\/*/;
-                      const match = child.style.backgroundImage.match(pattern);
-                      if (match && match.length > 1) {
-                        const vid = match[1];
+                      const vid = getVideoID(child);
+                      if (vid) {
                         // get last viewed position
-                        chrome.storage.sync.get(match[1], (result) => {
+                        chrome.storage.sync.get(vid, (res) => {
                           if (card.classList.contains(mTrackerClass)) {
                             return;
                           }
-
+                          // create progress bar
                           const bar = document.createElement("div");
-                          bar.style.width = `${result[vid]}%`;
+                          const curVideo = res[vid];
+                          // duratio is never set before for this video
+                          bar.style.width = curVideo.duration
+                            ? `${Math.round(
+                                (curVideo.curTime / curVideo.duration) * 100
+                              )}%`
+                            : 0;
                           bar.className = mTrackerBarClass;
 
                           card.appendChild(bar);
@@ -114,34 +208,7 @@ function init(document) {
       childList: true,
     });
   }
-
-  if (videoTag.length > 0) {
-    const player = videoTag[0];
-    const playerObserver = new MutationObserver((mutations) => {
-      mutations.forEach((mutation) => {
-        if (
-          mutation.type === "attributes" &&
-          (mutation.attributeName === "src" ||
-            mutation.attributeName === "currentSrc")
-        ) {
-          log("src changed to: " + mutation.target.src, 5);
-        }
-      });
-    });
-    playerObserver.observe(player, { attributeFilter: ["src", "currentSrc"] });
-  } else {
-    log("init: failed to find player", 2);
-  }
 }
-
-// function getVideoID(url) {
-//   if (!url) {
-//     log("Invalid src", 2);
-//     return "";
-//   }
-
-//   return new URL(url).pathname.split("/").pop();
-// }
 
 injectStyle();
 initWhenReady();
