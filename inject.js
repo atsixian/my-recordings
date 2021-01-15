@@ -88,7 +88,7 @@ function init(document) {
   const player = videoTag[0];
 
   const getBarWidth = (video) =>
-    video.duration
+    video?.duration
       ? `${Math.round((video.curTime / video.duration) * 100)}%`
       : 0;
 
@@ -124,7 +124,7 @@ function init(document) {
         chrome.storage.sync.set({
           [vid]: {
             duration: player.duration,
-            curTime: curVideo.curTime || 0
+            curTime: curVideo?.curTime || 0
           }
         });
       });
