@@ -1,3 +1,8 @@
+const mTrackerClass = "m-rec-tracker";
+const mTrackerBarClass = `${mTrackerClass}-bar`;
+const sideBarClass = "layout items_recordings d-flex column";
+const videoCardClass = "v-image v-responsive theme--light";
+
 function log(message, level) {
   verbosity = 5;
   if (verbosity >= level) {
@@ -41,58 +46,44 @@ function initWhenReady() {
   }
 }
 
-function checkVideo(node, parent) {
-  if (node.nodeName === "VIDEO") {
-    console.log(node);
-  } else if (node.children !== undefined) {
-    node.children.forEach((childNode) => {
-      checkVideo(childNode, childNode.parentNode || parent);
-    });
-  }
-}
-
 function init(document) {
   log("begin init", 5);
-  if (!document.body || document.body.classList.contains("m-rec-tracker")) {
+  if (!document.body || document.body.classList.contains(mTrackerClass)) {
     return;
   }
-  document.body.classList.add("m-rec-tracker");
+  document.body.classList.add(mTrackerClass);
   log("init: tracker added to body", 5);
 
   log("init: query for media", 5);
-  let mediaTags = document.getElementsByTagName("video");
-  let navbar = document.getElementsByClassName(
-    "layout items_recordings d-flex column"
-  );
-  if (navbar.length > 0) {
-    navbar = navbar[0];
+  let videoTag = document.getElementsByTagName("video");
+  let sideBar = document.getElementsByClassName(sideBarClass);
+  if (sideBar.length > 0) {
+    sideBar = sideBar[0];
     const observer = new MutationObserver((mutations) => {
       mutations.forEach((mutation) => {
         if (mutation.type === "childList") {
-          const cards = document.getElementsByClassName(
-            "v-image v-responsive theme--light"
-          );
+          const cards = document.getElementsByClassName(videoCardClass);
 
           for (let card of cards) {
-            if (card.classList.contains("m-rec-tracker")) {
+            if (card.classList.contains(mTrackerClass)) {
               continue;
             }
             const bar = document.createElement("div");
             bar.style.width = `${100 * Math.random()}%`;
-            bar.className = "m-rec-tracker-bar";
+            bar.className = mTrackerBarClass;
 
             card.appendChild(bar);
-            card.classList.add("m-rec-tracker");
+            card.classList.add(mTrackerClass);
           }
         }
       });
     });
-    observer.observe(navbar, {
+    observer.observe(sideBar, {
       childList: true,
     });
   }
 
-  if (mediaTags.length > 0) {
+  if (videoTag.length > 0) {
   } else {
     log("init: failed to find player", 2);
   }
