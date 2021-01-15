@@ -84,10 +84,37 @@ function init(document) {
   }
 
   if (videoTag.length > 0) {
+    const player = videoTag[0];
+    const playerObserver = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (
+          mutation.type === "attributes" &&
+          (mutation.attributeName === "src" ||
+            mutation.attributeName === "currentSrc")
+        ) {
+          log("src changed to: " + mutation.target.src, 5);
+        }
+      });
+    });
+    playerObserver.observe(player, { attributeFilter: ["src", "currentSrc"] });
   } else {
     log("init: failed to find player", 2);
   }
 }
+
+function getVideoID(url) {
+  if (!url) {
+    log("Invalid src", 2);
+    return "";
+  }
+
+  return new URL(url).pathname.split("/").pop();
+}
+
+// chrome.runtime.onMessage.addListener(function (response, sendResponse) {
+//   console.log(response);
+//   return true;
+// });
 
 injectStyle();
 initWhenReady();

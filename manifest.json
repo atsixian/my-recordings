@@ -3,15 +3,15 @@
   "short_name": "mcgill-rec-tracker",
   "version": "1.0",
   "description": "Track recordings for McGill students",
-  "permissions": ["storage", "declarativeContent", "activeTab"],
+  "permissions": ["storage", "webRequest", "tabs", "*://*.mcgill.ca/*"],
   "background": {
     "scripts": ["background.js"],
-    "persistent": false
+    "persistent": true
   },
   "content_scripts": [
     {
       "all_frames": true,
-      "matches": ["*://*.mcgill.ca/*"],
+      "matches": ["*://mycourses2.mcgill.ca/*"],
       "css": ["inject.css"],
       "js": ["inject.js"]
     }
