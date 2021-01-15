@@ -2,6 +2,17 @@ const mTrackerClass = "m-rec-tracker";
 const mTrackerBarClass = `${mTrackerClass}-bar`;
 const sideBarClass = "layout items_recordings d-flex column";
 const videoCardClass = "v-image v-responsive theme--light";
+const thumbnailClass = "v-image__image v-image__image--contain";
+
+chrome.storage.sync.set({
+  "2021-WINTER/COMP-520-001/20210108_133113_ZOOM_72456": 100,
+});
+chrome.storage.sync.set({
+  "2021-WINTER/COMP-520-001/20210111_133524_ZOOM_79314": 50,
+});
+chrome.storage.sync.set({
+  "2021-WINTER/COMP-520-001/20210113_133410_ZOOM_81119": 10,
+});
 
 function log(message, level) {
   verbosity = 5;
@@ -55,30 +66,51 @@ function init(document) {
   log("init: tracker added to body", 5);
 
   log("init: query for media", 5);
+
   let videoTag = document.getElementsByTagName("video");
   let sideBar = document.getElementsByClassName(sideBarClass);
   if (sideBar.length > 0) {
     sideBar = sideBar[0];
-    const observer = new MutationObserver((mutations) => {
+    const sideBarObserver = new MutationObserver((mutations) => {
       mutations.forEach((mutation) => {
         if (mutation.type === "childList") {
           const cards = document.getElementsByClassName(videoCardClass);
 
           for (let card of cards) {
-            if (card.classList.contains(mTrackerClass)) {
-              continue;
-            }
-            const bar = document.createElement("div");
-            bar.style.width = `${100 * Math.random()}%`;
-            bar.className = mTrackerBarClass;
+            const cardObserver = new MutationObserver((cardMuts) => {
+              cardMuts.forEach((cardMut) => {
+                if (cardMut.type === "childList") {
+                  cardMut.addedNodes.forEach((child) => {
+                    if (child.classList.contains("v-image__image--contain")) {
+                      const pattern = /.*mcgill.ca\/content\/(.*)\/images\/*/;
+                      const match = child.style.backgroundImage.match(pattern);
+                      if (match && match.length > 1) {
+                        const vid = match[1];
+                        // get last viewed position
+                        chrome.storage.sync.get(match[1], (result) => {
+                          if (card.classList.contains(mTrackerClass)) {
+                            return;
+                          }
 
-            card.appendChild(bar);
-            card.classList.add(mTrackerClass);
+                          const bar = document.createElement("div");
+                          bar.style.width = `${result[vid]}%`;
+                          bar.className = mTrackerBarClass;
+
+                          card.appendChild(bar);
+                          card.classList.add(mTrackerClass);
+                        });
+                      }
+                    }
+                  });
+                }
+              });
+            });
+            cardObserver.observe(card, { childList: true });
           }
         }
       });
     });
-    observer.observe(sideBar, {
+    sideBarObserver.observe(sideBar, {
       childList: true,
     });
   }
@@ -102,19 +134,14 @@ function init(document) {
   }
 }
 
-function getVideoID(url) {
-  if (!url) {
-    log("Invalid src", 2);
-    return "";
-  }
+// function getVideoID(url) {
+//   if (!url) {
+//     log("Invalid src", 2);
+//     return "";
+//   }
 
-  return new URL(url).pathname.split("/").pop();
-}
-
-// chrome.runtime.onMessage.addListener(function (response, sendResponse) {
-//   console.log(response);
-//   return true;
-// });
+//   return new URL(url).pathname.split("/").pop();
+// }
 
 injectStyle();
 initWhenReady();

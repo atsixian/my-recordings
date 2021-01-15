@@ -5,13 +5,13 @@
   "description": "Track recordings for McGill students",
   "permissions": ["storage", "webRequest", "tabs", "*://*.mcgill.ca/*"],
   "background": {
-    "scripts": ["background.js"],
+    "scripts": ["background.js", "hot-reload.js"],
     "persistent": true
   },
   "content_scripts": [
     {
       "all_frames": true,
-      "matches": ["*://mycourses2.mcgill.ca/*"],
+      "matches": ["*://lrs.mcgill.ca/*"],
       "css": ["inject.css"],
       "js": ["inject.js"]
     }
