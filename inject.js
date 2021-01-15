@@ -128,8 +128,8 @@ function init(document) {
         chrome.storage.sync.set({
           [vid]: {
             duration: player.duration,
-            curTime: curVideo.curTime || 0,
-          },
+            curTime: curVideo.curTime || 0
+          }
         });
       });
     }
@@ -219,7 +219,7 @@ function init(document) {
       });
     });
     sideBarObserver.observe(sideBar, {
-      childList: true,
+      childList: true
     });
   }
 }
