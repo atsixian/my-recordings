@@ -70,6 +70,20 @@ Install it as a Chrome extension
 
 ## Contributing
 
+### Local development
+
+- Clone the repo
+
+```
+git clone https://github.com/Deerhound579/mcgill-rec-tracker.git
+```
+
+- Go to [Chrome extension](chrome://extensions/) page. Click `Load unpacked` and
+  load the project folder
+
+- Make your changes and reload the extension. For more information, see
+  [the official guide](https://developer.chrome.com/docs/extensions/mv2/getstarted/)
+
 <!-- LICENSE -->
 
 ## License
