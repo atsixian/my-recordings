@@ -41,7 +41,7 @@ https://github.com/othneildrew/Best-README-Template/blob/master/README.md
 
 ## About The Project
 
-![banner](images/banner.jpg)
+![banner](images/banner.gif)
 
 In the period of online learning, we rely heavily on lecture recordings . The
 current LRS doesn't remember our viewing history, and of course, we can't resume
