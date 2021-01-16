@@ -1,8 +1,8 @@
 {
-  "name": "McGill Recording Tracker",
-  "short_name": "mcgill-rec-tracker",
+  "name": "My Recordings",
+  "short_name": "myRecordings",
   "version": "0.0.1",
-  "description": "Track recordings for McGill students",
+  "description": "Manage recordings for McGill students",
   "permissions": ["storage", "*://mycourses2.mcgill.ca/*"],
   "content_scripts": [
     {

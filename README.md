@@ -6,19 +6,19 @@ https://github.com/othneildrew/Best-README-Template/blob/master/README.md
 
 <br />
 <p align="center">
-  <a href="https://github.com/Deerhound579/mcgill-rec-tracker/images/logo.png">
+  <a href="https://github.com/Deerhound579/my-recordings/images/logo.png">
     <img src="images/logo.png" alt="Logo" width="80" height="80">
   </a>
 
-  <h1 align="center">McGill Recording Tracker</h1>
+  <h1 align="center">My Recordings</h1>
 
   <p align="center">
     The missing features of McGill's LRS
     <br />
     <br />
-    <a href="https://github.com/Deerhound579/mcgill-rec-tracker/issues">Report Bug</a>
+    <a href="https://github.com/Deerhound579/my-recordings/issues">Report Bug</a>
     ·
-    <a href="https://github.com/Deerhound579/mcgill-rec-tracker/issues">Request Feature</a>
+    <a href="https://github.com/Deerhound579/my-recordings/issues">Request Feature</a>
   </p>
 </p>
 
@@ -46,10 +46,10 @@ https://github.com/othneildrew/Best-README-Template/blob/master/README.md
 In the period of online learning, we rely heavily on lecture recordings . The
 current LRS doesn't remember our viewing history, and of course, we can't resume
 from where we left off. Our course load is already heavy, we need an easy way to
-track our recordings.
+manage our recordings.
 
-This tool tracks you viewing history with a progress bar under each video. And
-you can resume from where you left.
+This tool remembers you viewing history with a progress bar under each video.
+And you can resume from where you left.
 
 Never fear for refreshing the page by accident again.
 
@@ -78,7 +78,7 @@ Install it as a Chrome extension
 - Clone the repo
 
 ```
-git clone https://github.com/Deerhound579/mcgill-rec-tracker.git
+git clone https://github.com/Deerhound579/my-recordings.git
 ```
 
 - Go to [Chrome extension](chrome://extensions/) page. Click `Load unpacked` and

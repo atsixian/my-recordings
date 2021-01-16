@@ -1,5 +1,5 @@
-const mTrackerClass = "m-rec-tracker";
-const mTrackerBarClass = `${mTrackerClass}-bar`;
+const mRecClass = "m-rec";
+const mRecBarClass = `${mRecClass}-bar`;
 const sideBarClass = "layout items_recordings d-flex column";
 const videoCardClass = "v-image v-responsive";
 const imageSelector = ".v-image__image--contain";
@@ -72,11 +72,11 @@ function addMultipleEventListener(element, events, handler) {
 
 function init(document) {
   log("begin init", 5);
-  if (!document.body || document.body.classList.contains(mTrackerClass)) {
+  if (!document.body || document.body.classList.contains(mRecClass)) {
     return;
   }
-  document.body.classList.add(mTrackerClass);
-  log("init: tracker added to body", 5);
+  document.body.classList.add(mRecClass);
+  log("init: mRec added to body", 5);
 
   log("init: query for media", 5);
 
@@ -121,22 +121,22 @@ function init(document) {
           if (cardMut.type === "childList") {
             cardMut.addedNodes.forEach((child) => {
               if (child.classList.contains("v-image__image--contain")) {
-                if (card.classList.contains(mTrackerClass)) {
-                  return;
-                }
                 const vid = getVideoID(child);
                 if (vid) {
                   // get last viewed position
                   chrome.storage.sync.get(vid, (res) => {
                     // create progress bar
+                    if (card.classList.contains(mRecClass)) {
+                      return;
+                    }
                     const bar = document.createElement("div");
                     const curVideo = res[vid];
                     // duratio is never set before for this video
                     bar.style.width = getBarWidth(curVideo);
-                    bar.className = mTrackerBarClass;
+                    bar.className = mRecBarClass;
 
                     card.appendChild(bar);
-                    card.classList.add(mTrackerClass);
+                    card.classList.add(mRecClass);
                   });
                 }
               }
@@ -206,7 +206,7 @@ function init(document) {
   const updateLastVideo = () => {
     const curVideoCard = getCurVideoCard();
     if (curVideoCard) {
-      lastVideo.bar = curVideoCard.getElementsByClassName(mTrackerBarClass)[0];
+      lastVideo.bar = curVideoCard.getElementsByClassName(mRecBarClass)[0];
       lastVideo.id = getCurVideoID(curVideoCard);
       log("lastVideo updated", 5);
     }
