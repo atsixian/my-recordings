@@ -4,6 +4,7 @@ const sideBarClass = "layout items_recordings d-flex column";
 const videoCardClass = "v-image v-responsive";
 const imageSelector = ".v-image__image--contain";
 const activeCardClass = "vcard_active";
+const mainContentClass = "v-main v-content";
 
 let lastVideo = {};
 
@@ -94,7 +95,7 @@ function init(document) {
 
   const getCurVideoCard = () => {
     let activeCard = document.getElementsByClassName(activeCardClass);
-    if (activeCard.length > 0) {
+    if (activeCard.length) {
       // get current video card element
       return activeCard[0];
     }
@@ -110,6 +111,41 @@ function init(document) {
       return curImage ? getVideoID(curImage) : undefined;
     }
     return undefined;
+  };
+
+  const addBar = () => {
+    const cards = document.getElementsByClassName(videoCardClass);
+    for (let card of cards) {
+      const cardObserver = new MutationObserver((cardMuts) => {
+        cardMuts.forEach((cardMut) => {
+          if (cardMut.type === "childList") {
+            cardMut.addedNodes.forEach((child) => {
+              if (child.classList.contains("v-image__image--contain")) {
+                if (card.classList.contains(mTrackerClass)) {
+                  return;
+                }
+                const vid = getVideoID(child);
+                if (vid) {
+                  // get last viewed position
+                  chrome.storage.sync.get(vid, (res) => {
+                    // create progress bar
+                    const bar = document.createElement("div");
+                    const curVideo = res[vid];
+                    // duratio is never set before for this video
+                    bar.style.width = getBarWidth(curVideo);
+                    bar.className = mTrackerBarClass;
+
+                    card.appendChild(bar);
+                    card.classList.add(mTrackerClass);
+                  });
+                }
+              }
+            });
+          }
+        });
+      });
+      cardObserver.observe(card, { childList: true });
+    }
   };
 
   player.addEventListener("loadedmetadata", () => {
@@ -217,45 +253,33 @@ function init(document) {
 
   playerObserver.observe(player, { attributeFilter: ["src"] });
 
+  let mainContent = document.getElementsByClassName(mainContentClass);
+  if (mainContent.length) {
+    mainContent = mainContent[0];
+    const mainObserver = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (
+          mutation.type === "attributes" &&
+          mutation.attributeName === "style"
+        ) {
+          // opened
+          if (mutation.target.style.cssText.split(" ").length === 5) {
+            addBar();
+          }
+        }
+      });
+    });
+
+    mainObserver.observe(mainContent, { attributeFilter: ["style"] });
+  }
+
   let sideBar = document.getElementsByClassName(sideBarClass);
-  if (sideBar.length > 0) {
+  if (sideBar.length) {
     sideBar = sideBar[0];
     const sideBarObserver = new MutationObserver((mutations) => {
       mutations.forEach((mutation) => {
         if (mutation.type === "childList") {
-          const cards = document.getElementsByClassName(videoCardClass);
-
-          for (let card of cards) {
-            const cardObserver = new MutationObserver((cardMuts) => {
-              cardMuts.forEach((cardMut) => {
-                if (cardMut.type === "childList") {
-                  cardMut.addedNodes.forEach((child) => {
-                    if (child.classList.contains("v-image__image--contain")) {
-                      const vid = getVideoID(child);
-                      if (vid) {
-                        // get last viewed position
-                        chrome.storage.sync.get(vid, (res) => {
-                          if (card.classList.contains(mTrackerClass)) {
-                            return;
-                          }
-                          // create progress bar
-                          const bar = document.createElement("div");
-                          const curVideo = res[vid];
-                          // duratio is never set before for this video
-                          bar.style.width = getBarWidth(curVideo);
-                          bar.className = mTrackerBarClass;
-
-                          card.appendChild(bar);
-                          card.classList.add(mTrackerClass);
-                        });
-                      }
-                    }
-                  });
-                }
-              });
-            });
-            cardObserver.observe(card, { childList: true });
-          }
+          addBar();
         }
       });
     });

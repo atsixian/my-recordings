@@ -3,7 +3,7 @@
   "short_name": "mcgill-rec-tracker",
   "version": "0.0.1",
   "description": "Track recordings for McGill students",
-  "permissions": ["storage", "*://*.mcgill.ca/*"],
+  "permissions": ["storage", "*://mycourses2.mcgill.ca/*"],
   "content_scripts": [
     {
       "all_frames": true,
