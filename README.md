@@ -34,6 +34,7 @@ https://github.com/othneildrew/Best-README-Template/blob/master/README.md
     </li>
     <li><a href="#contributing">Contributing</a></li>
     <li><a href="#license">License</a></li>
+    <li><a href="#acknowledgements">Acknowledgements</a></li>
   </ol>
 </details>
 
@@ -41,7 +42,7 @@ https://github.com/othneildrew/Best-README-Template/blob/master/README.md
 
 ## About The Project
 
-![banner](images/banner.gif)
+![banner](./images/banner.gif)
 
 In the period of online learning, we rely heavily on lecture recordings . The
 current LRS doesn't remember our viewing history, and of course, we can't resume
@@ -53,7 +54,7 @@ And you can resume from where you left.
 
 Never fear for refreshing the page by accident again.
 
-![progree-bar](images/progress-bar.png)
+![before](images/before.jpg) ![after](images/after.jpg)
 
 <!-- Reminder -->
 
@@ -97,3 +98,8 @@ McGill is a University in Montreal and has no affiliation with this software.
 
 This software is distributed under the MIT License. See `LICENSE` for more
 information.
+
+## Acknowledgements
+
+All illustrations are created by Mory(
+[@m0ry_hit0mi](https://www.instagram.com/m0ry_hit0mi/?r=nametag))
