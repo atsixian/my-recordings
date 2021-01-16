@@ -3,7 +3,7 @@
   "short_name": "mcgill-rec-tracker",
   "version": "0.0.1",
   "description": "Track recordings for McGill students",
-  "permissions": ["storage", "tabs", "*://*.mcgill.ca/*"],
+  "permissions": ["storage", "*://*.mcgill.ca/*"],
   "content_scripts": [
     {
       "all_frames": true,
@@ -14,17 +14,17 @@
   ],
   "page_action": {
     "default_icon": {
-      "16": "icons/get_started16.png",
-      "32": "icons/get_started32.png",
-      "48": "icons/get_started48.png",
-      "128": "icons/get_started128.png"
+      "16": "icons/icon/duck-16.png",
+      "32": "icons/icon/duck-32.png",
+      "48": "icons/icon/duck-48.png",
+      "128": "icons/icon/duck-128.png"
     }
   },
   "icons": {
-    "16": "icons/get_started16.png",
-    "32": "icons/get_started32.png",
-    "48": "icons/get_started48.png",
-    "128": "icons/get_started128.png"
+    "16": "icons/logo/duck-16.png",
+    "32": "icons/logo/duck-32.png",
+    "48": "icons/logo/duck-48.png",
+    "128": "icons/logo/duck-128.png"
   },
   "manifest_version": 2
 }
