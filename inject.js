@@ -1,10 +1,10 @@
 const mRecClass = "m-rec";
 const mRecBarClass = `${mRecClass}-bar`;
-const sideBarClass = "layout items_recordings d-flex column";
+const sidebarClass = "layout items_recordings d-flex column";
 const videoCardClass = "v-image v-responsive";
 const imageSelector = ".v-image__image--contain";
 const activeCardClass = "vcard_active";
-const mainContentClass = "v-main v-content";
+const drawerSelector = "#inspire > div.v-application--wrap > nav:nth-child(2)";
 
 let lastVideo = {};
 
@@ -87,6 +87,7 @@ function init(document) {
   }
 
   const player = videoTag[0];
+  let sidebarObserver;
 
   const getBarWidth = (video) =>
     video?.duration
@@ -147,6 +148,21 @@ function init(document) {
       cardObserver.observe(card, { childList: true });
     }
   };
+
+  function observeSidebar(sidebarElement) {
+    if (!sidebarObserver) {
+      sidebarObserver = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+          if (mutation.type === "childList") {
+            addBar();
+          }
+        });
+      });
+    } else {
+      sidebarObserver.disconnect();
+    }
+    sidebarObserver.observe(sidebarElement, { childList: true });
+  }
 
   player.addEventListener("loadedmetadata", () => {
     log(`duration: ${player.duration}`, 5);
@@ -253,39 +269,32 @@ function init(document) {
 
   playerObserver.observe(player, { attributeFilter: ["src"] });
 
-  let mainContent = document.getElementsByClassName(mainContentClass);
-  if (mainContent.length) {
-    mainContent = mainContent[0];
-    const mainObserver = new MutationObserver((mutations) => {
+  let drawer = document.querySelector(drawerSelector);
+  if (drawer) {
+    const drawerObserver = new MutationObserver((mutations) => {
       mutations.forEach((mutation) => {
         if (
           mutation.type === "attributes" &&
           mutation.attributeName === "style"
         ) {
-          // opened
-          if (mutation.target.style.cssText.split(" ").length === 5) {
-            addBar();
+          addBar();
+
+          // rehook the observer because the old element was removed
+          let sidebar = document.getElementsByClassName(sidebarClass);
+          if (sidebar.length) {
+            sidebar = sidebar[0];
+            observeSidebar(sidebar);
           }
         }
       });
     });
-
-    mainObserver.observe(mainContent, { attributeFilter: ["style"] });
+    drawerObserver.observe(drawer, { attributeFilter: ["style"] });
   }
 
-  let sideBar = document.getElementsByClassName(sideBarClass);
-  if (sideBar.length) {
-    sideBar = sideBar[0];
-    const sideBarObserver = new MutationObserver((mutations) => {
-      mutations.forEach((mutation) => {
-        if (mutation.type === "childList") {
-          addBar();
-        }
-      });
-    });
-    sideBarObserver.observe(sideBar, {
-      childList: true
-    });
+  let sidebar = document.getElementsByClassName(sidebarClass);
+  if (sidebar.length) {
+    sidebar = sidebar[0];
+    observeSidebar(sidebar);
   }
 }
 
