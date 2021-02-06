@@ -91,7 +91,7 @@ function init(document) {
 
   const getBarWidth = (video) =>
     video?.duration
-      ? `${Math.round((video.curTime / video.duration) * 100)}%`
+      ? `${Math.round((video.currentTime / video.duration) * 100)}%`
       : 0;
 
   const getCurVideoCard = () => {
@@ -171,12 +171,12 @@ function init(document) {
     if (vid) {
       log(`loaded ${vid}`, 5);
       chrome.storage.sync.get(vid, (res) => {
-        // keep the old curTime
+        // keep the old currentTime
         const curVideo = res[vid];
         chrome.storage.sync.set({
           [vid]: {
             duration: player.duration,
-            curTime: curVideo?.curTime || 0
+            currentTime: curVideo?.currentTime || 0
           }
         });
       });
@@ -190,17 +190,17 @@ function init(document) {
     player._updateInterval = setInterval(() => {
       const curVid = getCurVideoID();
       chrome.storage.sync.get(curVid, (res) => {
-        if (res[curVid] && res[curVid].curTime !== player.currentTime) {
+        if (res[curVid] && res[curVid].currentTime !== player.currentTime) {
           chrome.storage.sync.set(
             {
               [curVid]: {
-                curTime: player.currentTime,
+                currentTime: player.currentTime,
                 duration: res[curVid].duration
               }
             },
             () => {
               log(
-                `set ${curVid} to {curTime: ${player.currentTime}, duration: ${res[curVid].duration}}`,
+                `set ${curVid} to {currentTime: ${player.currentTime}, duration: ${res[curVid].duration}}`,
                 5
               );
             }
@@ -208,6 +208,13 @@ function init(document) {
         }
       });
     }, 1000);
+  });
+
+  player.addEventListener("pause", () => {
+    // update progree bar on pause
+    if (lastVideo) {
+      lastVideo.bar.style.width = getBarWidth(player);
+    }
   });
 
   addMultipleEventListener(
@@ -256,7 +263,7 @@ function init(document) {
         }
 
         chrome.storage.sync.get(curVid, (res) => {
-          const lastTime = res[curVid]?.curTime;
+          const lastTime = res[curVid]?.currentTime;
           log(`resume from ${lastTime}`, 5);
           if (lastTime) {
             // player.currentTime = res[curVid].duration * Math.random(); // test
