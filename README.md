@@ -44,7 +44,7 @@ https://github.com/othneildrew/Best-README-Template/blob/master/README.md
 
 ![banner](./images/banner.jpg)
 
-In the period of online learning, we rely heavily on lecture recordings . The
+In the period of online learning, we rely heavily on lecture recordings. The
 current LRS doesn't remember our viewing history, and of course, we can't resume
 from where we left off. Our course load is already heavy, we need an easy way to
 manage our recordings.
@@ -60,15 +60,14 @@ Never fear for refreshing the page by accident again.
 
 ## Note
 
-It only starts updating your progress when the video is ready to play(spinner
-has gone). Also, the update happens every second, so it's not 100% accurate.
+The update happens every second, so it's not 100% accurate.
 These may be improved in the future.
 
 <!-- GETTING STARTED -->
 
 ## Getting Started
 
-Install it as a Chrome extension
+Download it in [Chrome Web Store](https://chrome.google.com/webstore/detail/my-recordings/jbgkkonlpjfngadnpglnkcahkjnmffdf)
 
 <!-- CONTRIBUTING -->
 
